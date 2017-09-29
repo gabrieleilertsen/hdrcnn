@@ -2,7 +2,7 @@
 
 ## General
 This repository provides code for running inference with the autoencoder convolutional neural
-network (CNN) described in our [Siggraph Asia paper](http://vcl.itn.liu.se/publications/2017/EKDMU17/). If you use the code for your research work, please consider citing the paper
+network (CNN) described in our [Siggraph Asia paper](http://webstaff.itn.liu.se/~gabei62/paper_hdrcnn.pdf). If you use the code for your research work, please consider citing the paper
 according to:
 
 ```
@@ -40,7 +40,7 @@ $ pip install numpy scipy tensorflow tensorlayer OpenEXR
 
 ## Usage
 1. Trained CNN weights to be used for the inference, can be found here:
-[trained_params.npz](trained_params.npz)
+[trained_params.npz](http://webstaff.itn.liu.se/~gabei62/trained_params.npz)
 2. Run `python hdrcnn_predict.py -h` to display available input options.
 3. Below follows an example to demonstrate how to make an HDR reconstruction.
 
