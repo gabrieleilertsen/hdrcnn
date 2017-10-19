@@ -65,7 +65,7 @@ tf.flags.DEFINE_integer("width", "1024", "Reconstruction image width")
 tf.flags.DEFINE_integer("height", "768", "Reconstruction image height")
 tf.flags.DEFINE_string("im_dir", "data", "Path to image directory or an individual image")
 tf.flags.DEFINE_string("out_dir", "out", "Path to output directory")
-tf.flags.DEFINE_string("params", "trained_params.npz", "Path to trained CNN weights")
+tf.flags.DEFINE_string("params", "hdrcnn_params.npz", "Path to trained CNN weights")
 tf.flags.DEFINE_float("scaling", "1.0", "Pre-scaling, which is followed by clipping, in order to remove compression artifacts close to highlights")
 
 # Round to be multiple of 32, so that autoencoder pooling+upsampling
