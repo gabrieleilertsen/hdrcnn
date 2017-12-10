@@ -62,6 +62,21 @@ There is a limit to how much compression artifacts that can be present in the in
 
 **[UPDATE, 2017-10-19]:** There are now parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr.npz). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz) as these allow for a slight advantage in terms of reconstructed details.
 
+#### Controlling the reconstruction
+The HDR reconstruction with the CNN is completely automatic, with no parameter calibration needed. However, in some situations it may be beneficial to be able to control how bright the reconstructed pixels well be. To this end, there is a simple trick that can be used to allow for such control.
+
+Given the input image **x**, the CNN prediction **y = f(x)** can be controlled somewhat by altering the input image with an exponential/gamma function, and inverting this after the reconstruction,
+
+&nbsp;&nbsp;&nbsp;&nbsp;**y = f(x<sup>1/g</sup>)<sup>g</sup>**.
+
+Essentially, this modifies the camera curve of the image, so that reconstruction is performed given other camera characteristics. For a value **g > 1**, the intensities of reconstructed bright regions will be boosted, and vice versa for **g < 1**. There is an input option `--gamma` that allows to perform this modification:
+
+```
+$ python hdrcnn_predict.py [...] --gamma 1.2
+```
+In general, a value around *1.1-1.3* may be a good idea, since this prevents underestimation of the brightest pixels, which otherwise is common (e.g. due to limitations in the training data).
+
+
 ## License
 
 Copyright (c) 2017, Gabriel Eilertsen.

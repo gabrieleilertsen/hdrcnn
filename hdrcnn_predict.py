@@ -43,6 +43,8 @@ import tensorlayer as tl
 import numpy as np
 import network, img_io
 
+eps = 1e-5
+
 def print_(str, color='', bold=False):
     if color == 'w':
         sys.stdout.write('\033[93m')
@@ -67,6 +69,7 @@ tf.flags.DEFINE_string("im_dir", "data", "Path to image directory or an individu
 tf.flags.DEFINE_string("out_dir", "out", "Path to output directory")
 tf.flags.DEFINE_string("params", "hdrcnn_params.npz", "Path to trained CNN weights")
 tf.flags.DEFINE_float("scaling", "1.0", "Pre-scaling, which is followed by clipping, in order to remove compression artifacts close to highlights")
+tf.flags.DEFINE_float("gamma", "1.0", "Gamma/exponential curve applied before, and inverted after, prediction. This can be used to control the boost of reconstructed pixels.")
 
 # Round to be multiple of 32, so that autoencoder pooling+upsampling
 # yields same size as input image
@@ -88,6 +91,8 @@ print_("\t  CNN weights:                    %s\n" % FLAGS.params, 'm')
 print_("\t  Prediction resolution:          %dx%d pixels\n" % (sx, sy), 'm')
 if FLAGS.scaling > 1.0:
     print_("\t  Pre-scaling:                    %0.4f\n" % FLAGS.scaling, 'm')
+if FLAGS.gamma > 1.0 + eps or FLAGS.gamma < 1.0 - eps:
+    print_("\t  Gamma:                          %0.4f\n" % FLAGS.gamma, 'm')
 print_("\t-------------------------------------------------------------------\n\n\n", 'm')
 
 # Single frame
@@ -134,10 +139,14 @@ for i in range(len(frames)):
 
         print_("\t(Saturation: %0.2f%%)\n" % (100.0*(x_buffer>=1).sum()/x_buffer.size), 'm')
 
-        # Run prediction
+        # Run prediction.
+        # The gamma value is used to allow for boosting/reducing the intensity of
+        # the reconstructed highlights. If y = f(x) is the reconstruction, the gamma
+        # g alters this according to y = f(x^(1/g))^g
         print_("\tInference...")
-        feed_dict = {x: x_buffer}
+        feed_dict = {x: np.power(np.maximum(x_buffer, 0.0), 1.0/FLAGS.gamma)}
         y_predict = sess.run([y], feed_dict=feed_dict)
+        y_predict = np.power(np.maximum(y_predict, 0.0), FLAGS.gamma)
         print_("\tdone\n")
 
         # Gamma corrected output
