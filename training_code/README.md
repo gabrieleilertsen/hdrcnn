@@ -27,7 +27,7 @@ See `hdrcnn_training.py` for a full list of possible input arguments, or display
 
 For training of the final weights provided with the HDR-CNN prediction script, a two-stage training procedure was performed. This is briefly described next.
 
-###**1. Pre-training**
+### 1. Pre-training
 The pre-training stage is performed on a simulated database of HDR images. The data augmentation application will create this database from LDR images. For the pre-training in the [Siggraph Asia paper](http://hdrv.org/hdrcnn/) LDR images with no saturation were choosen from the Places dataset, see paper for details. The option `--linearize` applies an inverse camera curve before data augmentation, in order to approximate linear HDR pixel values. The option `--sub_im_min_jpg` is set to store LDR images with maximum JPEG quality, assuming that there already is lossy compression applied to the input images. Finally, the encoder weights are initialized using VGG16 weights trained for classification. Weights converted to TensorFlow can be found [here](http://webstaff.itn.liu.se/~gabei62/vgg16_places365_weights.npy).
 
 Given the afore-mentioned considerations, an example pre-training command may look something like this:
@@ -47,7 +47,7 @@ $ python3 -u hdrcnn_train.py \
     --linearize 1 
 ```
 
-###**2. Fine-tuning**
+### 2. Fine-tuning
 After performing the pre-training, the optimized CNN weights are used to initilize the network, followed by training on the main HDR dataset. The dataset is gathered from online resources, as listed in the supplementary document of the [Siggraph Asia paper](http://hdrv.org/hdrcnn/). Depending on GPU memory, the batch size may need to be reduced as compared to the pre-training, since default image size is 320x320 pixels.
 
 The training can be executed as follows:
