@@ -39,7 +39,7 @@
 
 import numpy as np
 import scipy.misc
-#import OpenEXR, Imath
+import OpenEXR, Imath
 
 class IOException(Exception):
     def __init__(self, value):

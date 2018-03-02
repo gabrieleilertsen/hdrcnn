@@ -10,6 +10,8 @@ The dependencies for the training script are pretty much the same as for the inf
 
 For the virtual camera pre-processing, OpenCV is used both to read HDR images, and to output LDR JPEG images. Thus, OpenCV needs to be compiled with support for reading the training images, e.g. using OpenEXR and/or Radiance RGBE, and with support for JPEG.
 
+The training script uses the same model and image I/O as the prediction script. Thus, it requires this code to be in the parental folder.
+
 ### Installation
 In order to run a training session, compile the virtual camera application before executing the training script:
 
