@@ -3,7 +3,7 @@
 ![image](http://hdrv.org/hdrcnn/img/teaser.jpg)
 
 ## General
-This repository provides code for running inference with the autoencoder convolutional neural network (CNN) described in our [Siggraph Asia paper](http://hdrv.org/hdrcnn/). Please read the information below in order to make proper use of the method. If you use the code for your research work, please consider citing the paper according to:
+This repository provides code for running inference with the autoencoder convolutional neural network (CNN) described in our [Siggraph Asia paper](http://hdrv.org/hdrcnn/), as well as training of the network. Please read the information below in order to make proper use of the method. If you use the code for your research work, please consider citing the paper according to:
 
 ```
 @article{EKDMU17,
@@ -17,12 +17,9 @@ This repository provides code for running inference with the autoencoder convolu
 }
 ```
 
-The CNN is trained to reconstruct image regions where information has been
-lost due to sensor saturation, such as highlights and bright image features. 
-This means that a standard 8-bit single exposed image can be fed to the network,
-which then reconstructs the missing information in order to create a high
-dynamic range (HDR) image. Please see the [project webpage](http://hdrv.org/hdrcnn/)
-for more information on the method.
+The CNN is trained to reconstruct image regions where information has been lost due to sensor saturation, such as highlights and bright image features. This means that a standard 8-bit single exposed image can be fed to the network, which then reconstructs the missing information in order to create a high dynamic range (HDR) image. Please see the [project webpage](http://hdrv.org/hdrcnn/) for more information on the method.
+
+In what follows are descriptions on how to make HDR reconstructions using the trained network. For training of new weigths information and code is provided in the [training_code](training_code/) folder.
 
 ## Code specification
 The model and prediction scripts are written in Python using the following packages:
@@ -63,7 +60,7 @@ There is a limit to how much compression artifacts that can be present in the in
 **[UPDATE, 2017-10-19]:** There are now parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr.npz). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz) as these allow for a slight advantage in terms of reconstructed details.
 
 #### Controlling the reconstruction
-The HDR reconstruction with the CNN is completely automatic, with no parameter calibration needed. However, in some situations it may be beneficial to be able to control how bright the reconstructed pixels well be. To this end, there is a simple trick that can be used to allow for such control.
+The HDR reconstruction with the CNN is completely automatic, with no parameter calibration needed. However, in some situations it may be beneficial to be able to control how bright the reconstructed pixels will be. To this end, there is a simple trick that can be used to allow for such control.
 
 Given the input image **x**, the CNN prediction **y = f(x)** can be controlled somewhat by altering the input image with an exponential/gamma function, and inverting this after the reconstruction,
 

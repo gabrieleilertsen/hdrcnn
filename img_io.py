@@ -39,7 +39,7 @@
 
 import numpy as np
 import scipy.misc
-import OpenEXR, Imath
+#import OpenEXR, Imath
 
 class IOException(Exception):
     def __init__(self, value):
@@ -115,3 +115,24 @@ def writeEXR(img, file):
     except Exception as e:
         raise IOException("Failed writing EXR: %s"%e)
 
+
+# Read training data (HDR ground truth and LDR JPEG images)
+def load_training_pair(name_hdr, name_jpg):
+
+    data = np.fromfile(name_hdr, dtype=np.float32)
+    ss = len(data)
+    
+    if ss < 3:
+        return (False,0,0)
+
+    sz = np.floor(data[0:3]).astype(int)
+    npix = sz[0]*sz[1]*sz[2]
+    meta_length = ss - npix
+
+    # Read binary HDR ground truth
+    y = np.reshape(data[meta_length:meta_length+npix], (sz[0], sz[1], sz[2]))
+
+    # Read JPEG LDR image
+    x = scipy.misc.imread(name_jpg).astype(np.float32)/255.0
+
+    return (True,x,y)
