@@ -16,10 +16,10 @@ The training script uses the same model and image I/O as the prediction script. 
 In order to run a training session, compile the virtual camera application before executing the training script:
 
 ```
-cd virtualcamera/
-gcc -Wall -lm -lstdc++ -lopencv_core -lopencv_imgproc -lopencv_imgcodecs virtualcamera.cpp -o virtualcamera
-cd ..
-python hdrcnn_training.py
+$ cd virtualcamera/
+$ gcc -Wall -lm -lstdc++ -lopencv_core -lopencv_imgproc -lopencv_imgcodecs virtualcamera.cpp -o virtualcamera
+$ cd ..
+$ python hdrcnn_training.py
 ```
 
 ## Training procedure
@@ -33,7 +33,7 @@ The pre-training stage is performed on a simulated database of HDR images. The d
 Given the afore-mentioned considerations, an example pre-training command may look something like this:
 
 ```
-python3 -u hdrcnn_train.py \
+$ python3 -u hdrcnn_train.py \
     --raw_dir "PATH_TO_LDR_DATABASE"
     --vgg_path "PATH_TO_VGG16_WEIGHTS" \
     --sx 224 --sy 224 \
@@ -52,7 +52,7 @@ After performing the pre-training, the optimized CNN weights are used to initili
 
 The training can be executed as follows:
 ```
-python3 -u hdrcnn_train.py \
+$ python3 -u hdrcnn_train.py \
     --raw_dir    "PATH_TO_HDR_DATABASE" \
     --parameters "PATH_TO_WEIGHTS_FROM_PRETRAINING" \
     --load_params 1 \
