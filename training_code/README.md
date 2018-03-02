@@ -34,7 +34,7 @@ Given the afore-mentioned considerations, an example pre-training command may lo
 
 ```
 $ python3 -u hdrcnn_train.py \
-    --raw_dir "PATH_TO_LDR_DATABASE"
+    --raw_dir "PATH_TO_LDR_DATABASE" \
     --vgg_path "PATH_TO_VGG16_WEIGHTS" \
     --sx 224 --sy 224 \
     --preprocess 1 \
