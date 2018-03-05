@@ -93,7 +93,7 @@ tf.flags.DEFINE_float("num_epochs",         "100.0",   "Number of training epoch
 tf.flags.DEFINE_float("start_step",         "0.0",     "Step to start from")
 tf.flags.DEFINE_float("learning_rate",      "0.00005", "Starting learning rate for Adam optimizer")
 tf.flags.DEFINE_integer("batch_size",       "4",       "Batch size for training")
-tf.flags.DEFINE_bool("sep_loss",            "true",    "Use illuminance + reflectance loss")
+tf.flags.DEFINE_bool("sep_loss",            "true",    "Use illumination + reflectance loss")
 tf.flags.DEFINE_float("lambda_ir",          "0.5",     "Reflectance weight for the ill+refl loss")
 tf.flags.DEFINE_bool("rand_data",           "true",    "Random shuffling of training data")
 tf.flags.DEFINE_float("train_size",         "0.99",    "Fraction of data to use for training, the rest is validation data")
@@ -285,7 +285,7 @@ train_op = tf.train.AdamOptimizer(learning_rate, beta1=0.9, beta2=0.999,
 
 #=== Data enqueueing functions ================================================
 
-# For threaded enqueueing of frames
+# For enqueueing of frame names
 def enqueue_frames(enqueue_op, coord, frames):
     
     num_frames = len(frames)
@@ -312,7 +312,7 @@ def enqueue_frames(enqueue_op, coord, frames):
     except Exception as e:
         coord.request_stop(e)
 
-# For threaded read, process and enqueue
+# For multi-threaded reading and enqueueing of frames
 def load_and_enqueue(enqueue_op, coord):
     try:
         while not coord.should_stop():
