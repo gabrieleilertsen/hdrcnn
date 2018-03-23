@@ -276,7 +276,7 @@ struct VirtualCamera
                 // Add gaussian noise, with random variance between P->noise[0] and P->noise[1]
                 sc = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
                 Mat noise = Mat(host_roi.size(),CV_32FC3);
-                cv::randn(noise, 0, P->noise[0] + sc*(P->noise[1]-P->noise[0]));
+                cv::randn(noise, Scalar(0,0,0), (P->noise[0] + sc*(P->noise[1]-P->noise[0])) * Scalar(1,1,1));
                 host_roi = host_roi + noise;
 
                 // Random changes in hue and saturation
