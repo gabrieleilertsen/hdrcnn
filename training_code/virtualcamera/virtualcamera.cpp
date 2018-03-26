@@ -277,7 +277,7 @@ struct VirtualCamera
                 sc = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
                 Mat noise = Mat(host_roi.size(),CV_32FC3);
                 cv::randn(noise, Scalar(0,0,0), (P->noise[0] + sc*(P->noise[1]-P->noise[0])) * Scalar(1,1,1));
-                host_roi = host_roi + noise;
+                host_roi = max(0, host_roi + noise);
 
                 // Random changes in hue and saturation
                 if (P->hue[1] > 0 || P->sat[1] > 0)
