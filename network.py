@@ -244,7 +244,7 @@ def skip_connection_layer(input_layer, skip_layer, str, is_training=False):
     add_init = tf.constant_initializer(value=weights, dtype=tf.float32)
 
     # concatenate layers
-    network = tl.layers.ConcatLayer(layer = [input_layer,skip_layer], concat_dim=3, name ='%s/skip_connection'%str)
+    network = tl.layers.ConcatLayer([input_layer,skip_layer], concat_dim=3, name ='%s/skip_connection'%str)
 
     # fuse concatenated layers using the specified weights for initialization
     network = tl.layers.Conv2dLayer(network,
