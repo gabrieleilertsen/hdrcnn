@@ -37,7 +37,7 @@ $ pip install numpy scipy tensorflow tensorlayer OpenEXR
 ```
 
 ## Usage
-1. Trained CNN weights to be used for the inference, can be found [here](https://www.dropbox.com/s/x24aklusapvy2js/hdrcnn_params.npz).
+1. Trained CNN weights to be used for the inference, can be found [here](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz).
 2. Run `python hdrcnn_predict.py -h` to display available input options.
 3. Below follows an example to demonstrate how to make an HDR reconstruction.
 
@@ -57,7 +57,7 @@ $ python hdrcnn_predict.py --params hdrcnn_params.npz --im_dir data/img_001.png 
 #### Compression artifacts
 There is a limit to how much compression artifacts that can be present in the input images. Compression can often cause small (and often invisible) blocking artifacts close to highlights, which impairs the HDR reconstruction. Preferably, the input images should contain no or little compression (PNG or JPEG with highest quality setting).
 
-**[UPDATE, 2017-10-19]:** There are now parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](https://www.dropbox.com/s/a0rrku9x3374ufg/hdrcnn_params_compr.npz). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](https://www.dropbox.com/s/x24aklusapvy2js/hdrcnn_params.npz) as these allow for a slight advantage in terms of reconstructed details.
+**[UPDATE, 2017-10-19]:** There are now parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr.npz). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz) as these allow for a slight advantage in terms of reconstructed details.
 
 #### Controlling the reconstruction
 The HDR reconstruction with the CNN is completely automatic, with no parameter calibration needed. However, in some situations it may be beneficial to be able to control how bright the reconstructed pixels will be. To this end, there is a simple trick that can be used to allow for such control.
