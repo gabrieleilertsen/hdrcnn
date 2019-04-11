@@ -55,9 +55,23 @@ $ python hdrcnn_predict.py --params hdrcnn_params.npz --im_dir data/img_001.png 
 ``` 
 
 #### Compression artifacts
-There is a limit to how much compression artifacts that can be present in the input images. Compression can often cause small (and often invisible) blocking artifacts close to highlights, which impairs the HDR reconstruction. Preferably, the input images should contain no or little compression (PNG or JPEG with highest quality setting).
+There are parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr.npz). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz) as these allow for a slight advantage in terms of reconstructed details.
 
-**[UPDATE, 2017-10-19]:** There are now parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr.npz). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz) as these allow for a slight advantage in terms of reconstructed details.
+#### Video reconstruction
+Reconstruction video material frame by frame most often results in flickering artifacts and different local temporal incoherencies. In order to alleviate this problem, we provide parameters [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr_regularized.npz), which have been trained using the regularization method proposed in our [CVPR 2019 paper](http://hdrv.org/hdrcnn/cvpr2019):
+
+```
+@inproceedings{EMU19,
+  author       = "Eilertsen, Gabriel and 
+                  Mantiuk, Rafa\l and 
+                  Unger, Jonas",
+  title        = "Single-frame Regularization for Temporally Stable CNNs",
+  booktitle    = "The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+  month        = "June",
+  year         = "2019"
+}
+```
+The parameters trained for increased temporal coherence also use JPEG compressed images, so these are possible to use also for video with compression applied. There is some trade-of between reconstruction quality and temporal coherence. If you do not need to reconstruct video material, the [original parameters](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz) should be prefered.
 
 #### Controlling the reconstruction
 The HDR reconstruction with the CNN is completely automatic, with no parameter calibration needed. However, in some situations it may be beneficial to be able to control how bright the reconstructed pixels will be. To this end, there is a simple trick that can be used to allow for such control.
