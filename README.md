@@ -36,6 +36,8 @@ All dependencies are available through the Python **pip** package manager (repla
 $ pip install numpy scipy tensorflow tensorlayer OpenEXR
 ```
 
+You may have to install OpenEXR through the appropriate package manager before pip install (e.g. sudo apt-get install openexr and libopenexr-dev on Ubuntu).
+
 ## Usage
 1. Trained CNN weights to be used for the inference, can be found [here](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz).
 2. Run `python hdrcnn_predict.py -h` to display available input options.
