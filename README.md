@@ -1,9 +1,9 @@
 # **Deep learning HDR image reconstruction**
 
-![image](http://hdrv.org/hdrcnn/img/teaser.jpg)
+<!--![image](http://hdrv.org/hdrcnn/img/teaser.jpg)-->
 
 ## General
-This repository provides code for running inference with the autoencoder convolutional neural network (CNN) described in our [Siggraph Asia paper](http://hdrv.org/hdrcnn/), as well as training of the network. Please read the information below in order to make proper use of the method. If you use the code for your research work, please consider citing the paper according to:
+This repository provides code for running inference with the autoencoder convolutional neural network (CNN) described in our [Siggraph Asia paper](https://arxiv.org/abs/1710.07480), as well as training of the network. Please read the information below in order to make proper use of the method. If you use the code for your research work, please consider citing the paper according to:
 
 ```
 @article{EKDMU17,
@@ -17,7 +17,7 @@ This repository provides code for running inference with the autoencoder convolu
 }
 ```
 
-The CNN is trained to reconstruct image regions where information has been lost due to sensor saturation, such as highlights and bright image features. This means that a standard 8-bit single exposed image can be fed to the network, which then reconstructs the missing information in order to create a high dynamic range (HDR) image. Please see the [project webpage](http://hdrv.org/hdrcnn/) for more information on the method.
+The CNN is trained to reconstruct image regions where information has been lost due to sensor saturation, such as highlights and bright image features. This means that a standard 8-bit single exposed image can be fed to the network, which then reconstructs the missing information in order to create a high dynamic range (HDR) image. <!--Please see the [project webpage](http://hdrv.org/hdrcnn/) for more information on the method.-->
 
 In what follows are descriptions on how to make HDR reconstructions using the trained network. For training of new weigths information and code is provided in the [training_code](training_code/) folder.
 
@@ -39,7 +39,7 @@ $ pip install numpy scipy tensorflow tensorlayer OpenEXR
 You may have to install OpenEXR through the appropriate package manager before pip install (e.g. sudo apt-get install openexr and libopenexr-dev on Ubuntu).
 
 ## Usage
-1. Trained CNN weights to be used for the inference, can be found [here](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz).
+1. Trained CNN weights to be used for the inference, can be found [here](https://liuonline-my.sharepoint.com/:u:/g/personal/gabei62_liu_se/EdH23nW71LxCvajVnyPhFYgBqDEzuO_0gUL5gyjZM9HKHQ?e=Ke78ro).
 2. Run `python hdrcnn_predict.py -h` to display available input options.
 3. Below follows an example to demonstrate how to make an HDR reconstruction.
 
@@ -57,10 +57,10 @@ $ python hdrcnn_predict.py --params hdrcnn_params.npz --im_dir data/img_001.png 
 ``` 
 
 #### Compression artifacts
-There are parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr.npz). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz) as these allow for a slight advantage in terms of reconstructed details.
+There are parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](https://liuonline-my.sharepoint.com/:u:/g/personal/gabei62_liu_se/EXy43wmzzNRKjxEcWjetscIBNaUkF4Ln0m8YIJ5YmCierg?e=9dKeOp). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](https://liuonline-my.sharepoint.com/:u:/g/personal/gabei62_liu_se/EdH23nW71LxCvajVnyPhFYgBqDEzuO_0gUL5gyjZM9HKHQ?e=Ke78ro) as these allow for a slight advantage in terms of reconstructed details.
 
 #### Video reconstruction
-Reconstruction video material frame by frame most often results in flickering artifacts and different local temporal incoherencies. In order to alleviate this problem, we provide parameters [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr_regularized.npz), which have been trained using the regularization method proposed in our [CVPR 2019 paper](http://hdrv.org/hdrcnn/cvpr2019):
+Reconstruction video material frame by frame most often results in flickering artifacts and different local temporal incoherencies. In order to alleviate this problem, we provide parameters [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr_regularized.npz), which have been trained using the regularization method proposed in our [CVPR 2019 paper](https://openaccess.thecvf.com/content_CVPR_2019/html/Eilertsen_Single-Frame_Regularization_for_Temporally_Stable_CNNs_CVPR_2019_paper.html):
 
 ```
 @inproceedings{EMU19,
@@ -73,7 +73,7 @@ Reconstruction video material frame by frame most often results in flickering ar
   year         = "2019"
 }
 ```
-The parameters trained for increased temporal coherence also use JPEG compressed images, so these are possible to use also for video with compression applied. There is some trade-of between reconstruction quality and temporal coherence. If you do not need to reconstruct video material, the [original parameters](http://hdrv.org/hdrcnn/material/hdrcnn_params.npz) should be prefered.
+The parameters trained for increased temporal coherence also use JPEG compressed images, so these are possible to use also for video with compression applied. There is some trade-of between reconstruction quality and temporal coherence. If you do not need to reconstruct video material, the [original parameters](https://liuonline-my.sharepoint.com/:u:/g/personal/gabei62_liu_se/EXy43wmzzNRKjxEcWjetscIBNaUkF4Ln0m8YIJ5YmCierg?e=9dKeOp) should be prefered.
 
 #### Controlling the reconstruction
 The HDR reconstruction with the CNN is completely automatic, with no parameter calibration needed. However, in some situations it may be beneficial to be able to control how bright the reconstructed pixels will be. To this end, there is a simple trick that can be used to allow for such control.
