@@ -39,7 +39,7 @@ $ pip install numpy scipy tensorflow tensorlayer OpenEXR
 You may have to install OpenEXR through the appropriate package manager before pip install (e.g. sudo apt-get install openexr and libopenexr-dev on Ubuntu).
 
 ## Usage
-1. Trained CNN weights to be used for the inference, can be found [here](https://liuonline-my.sharepoint.com/:u:/g/personal/gabei62_liu_se/EdH23nW71LxCvajVnyPhFYgBqDEzuO_0gUL5gyjZM9HKHQ?e=Ke78ro).
+1. Trained CNN weights to be used for the inference, can be found [here](https://liuonline-my.sharepoint.com/personal/gabei62_liu_se/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn%2Fhdrcnn%5Fparams%2Enpz&parent=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn).
 2. Run `python hdrcnn_predict.py -h` to display available input options.
 3. Below follows an example to demonstrate how to make an HDR reconstruction.
 
@@ -57,10 +57,10 @@ $ python hdrcnn_predict.py --params hdrcnn_params.npz --im_dir data/img_001.png 
 ``` 
 
 #### Compression artifacts
-There are parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](https://liuonline-my.sharepoint.com/:u:/g/personal/gabei62_liu_se/EXy43wmzzNRKjxEcWjetscIBNaUkF4Ln0m8YIJ5YmCierg?e=9dKeOp). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](https://liuonline-my.sharepoint.com/:u:/g/personal/gabei62_liu_se/EdH23nW71LxCvajVnyPhFYgBqDEzuO_0gUL5gyjZM9HKHQ?e=Ke78ro) as these allow for a slight advantage in terms of reconstructed details.
+There are parameters available that have been trained with images that include JPEG compression artifacts. These can be downloaded [here](https://liuonline-my.sharepoint.com/personal/gabei62_liu_se/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn%2Fhdrcnn%5Fparams%5Fcompr%2Enpz&parent=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn). If the images for reconstruction contain compression artifacts, these parameters makes for a substantial improvement in reconstruction quality as compared to the previous parameters. However, if the input images contain no compression artifacts we recommend to use the [original parameters](https://liuonline-my.sharepoint.com/personal/gabei62_liu_se/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn%2Fhdrcnn%5Fparams%2Enpz&parent=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn) as these allow for a slight advantage in terms of reconstructed details.
 
 #### Video reconstruction
-Reconstruction video material frame by frame most often results in flickering artifacts and different local temporal incoherencies. In order to alleviate this problem, we provide parameters [here](http://hdrv.org/hdrcnn/material/hdrcnn_params_compr_regularized.npz), which have been trained using the regularization method proposed in our [CVPR 2019 paper](https://openaccess.thecvf.com/content_CVPR_2019/html/Eilertsen_Single-Frame_Regularization_for_Temporally_Stable_CNNs_CVPR_2019_paper.html):
+Reconstruction video material frame by frame most often results in flickering artifacts and different local temporal incoherencies. In order to alleviate this problem, we provide parameters [here](https://liuonline-my.sharepoint.com/personal/gabei62_liu_se/_layouts/15/onedrive.aspx?originalPath=aHR0cHM6Ly9saXVvbmxpbmUtbXkuc2hhcmVwb2ludC5jb20vOmY6L2cvcGVyc29uYWwvZ2FiZWk2Ml9saXVfc2UvRWd5eUdiU05yXzVOaS1LRWFnZWpmMEFCQzhfdzJXYVFxTzFJRHZRWm9qdE9EUT9ydGltZT03YTVMUkRNbzJFZw&id=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn%2Fhdrcnn%5Fparams%5Fcompr%5Fregularized%2Enpz&parent=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn), which have been trained using the regularization method proposed in our [CVPR 2019 paper](https://openaccess.thecvf.com/content_CVPR_2019/html/Eilertsen_Single-Frame_Regularization_for_Temporally_Stable_CNNs_CVPR_2019_paper.html):
 
 ```
 @inproceedings{EMU19,
@@ -73,7 +73,7 @@ Reconstruction video material frame by frame most often results in flickering ar
   year         = "2019"
 }
 ```
-The parameters trained for increased temporal coherence also use JPEG compressed images, so these are possible to use also for video with compression applied. There is some trade-of between reconstruction quality and temporal coherence. If you do not need to reconstruct video material, the [original parameters](https://liuonline-my.sharepoint.com/:u:/g/personal/gabei62_liu_se/EXy43wmzzNRKjxEcWjetscIBNaUkF4Ln0m8YIJ5YmCierg?e=9dKeOp) should be prefered.
+The parameters trained for increased temporal coherence also use JPEG compressed images, so these are possible to use also for video with compression applied. There is some trade-of between reconstruction quality and temporal coherence. If you do not need to reconstruct video material, the [original parameters](https://liuonline-my.sharepoint.com/personal/gabei62_liu_se/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn%2Fhdrcnn%5Fparams%2Enpz&parent=%2Fpersonal%2Fgabei62%5Fliu%5Fse%2FDocuments%2Fhdrcnn) should be prefered.
 
 #### Controlling the reconstruction
 The HDR reconstruction with the CNN is completely automatic, with no parameter calibration needed. However, in some situations it may be beneficial to be able to control how bright the reconstructed pixels will be. To this end, there is a simple trick that can be used to allow for such control.
