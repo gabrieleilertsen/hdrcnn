@@ -59,7 +59,17 @@ $ python3 -u hdrcnn_train.py \
     --preprocess 1 \
     --batch_size 8
 ```
+## Temporal regularization
+Regularization for increased temporal stability can be applied according to:
 
-
+```
+$ python3 -u hdrcnn_train.py \
+    /.../
+    --regularization 1 \
+    --regularization_alpha 0.95 \
+    --transf_scaling 1.0 \
+    --noise true
+```
+The training is performed as described above, but with the additional parameters for the regularization. See the code for comments, and the [paper](https://openaccess.thecvf.com/content_CVPR_2019/html/Eilertsen_Single-Frame_Regularization_for_Temporally_Stable_CNNs_CVPR_2019_paper.html) describing the method used. The regularization can be applied as a fine-tuning training, on the resulting model from step 2 above.
 
 
