@@ -99,6 +99,11 @@ tf.flags.DEFINE_bool("rand_data",           "true",    "Random shuffling of trai
 tf.flags.DEFINE_float("train_size",         "0.99",    "Fraction of data to use for training, the rest is validation data")
 tf.flags.DEFINE_integer("buffer_size",      "256",     "Size of load queue when reading training data")
 
+# Regularization for temporal stability
+tf.flags.DEFINE_integer("regularization",     "0",     "Use regularization: 0 = none, 1 = coherence, 2 = sparse jacobian")
+tf.flags.DEFINE_float("regularization_alpha", "0.95",  "Regularization strength")
+tf.flags.DEFINE_float("transf_scaling",       "1.0",   "Magnitude of transformations")
+tf.flags.DEFINE_bool("noise",                 "true",  "Apply noise to transformed images")
 
 #==============================================================================
 
@@ -129,6 +134,7 @@ if (FLAGS.preprocess):
                                     FLAGS.sub_im_min_jpg);
     print("\nRunning processing of training data")
     print("cmd = '%s'\n\n"%cmd)
+    sys.stdout.flush()
 
     # Remove old data, and run new data generation
     os.system("rm -rf %s"%FLAGS.data_dir)
@@ -173,6 +179,7 @@ x_valid, y_valid = [], []
 for i in range(len(frames_valid)):
     if i % 10 == 0:
         print("\tframe %d of %d" % (i, len(frames_valid)))
+        sys.stdout.flush()
     
     succ, xv, yv = img_io.load_training_pair(os.path.join(data_dir_bin, frames_valid[i]), os.path.join(data_dir_jpg, frames_valid[i].replace(".bin", ".jpg")))
     if not succ:
@@ -186,6 +193,7 @@ for i in range(len(frames_valid)):
         x_valid = np.concatenate((x_valid, xv), axis=0)
         y_valid = np.concatenate((y_valid, yv), axis=0)
 print("...done!\n\n")
+sys.stdout.flush()
 
 del frames
 
@@ -206,14 +214,53 @@ enqueue_op_train = q_train.enqueue([input_target, input_data])
 y_, x = q_train.dequeue_many(FLAGS.batch_size)
 
 
+#=== Random transformation for regularization =================================
+x_aug = x
+
+if FLAGS.regularization > 0:
+  sc = FLAGS.transf_scaling
+
+  # Random transformation of translation, rotation, zoom, and shearing
+  tx = tf.random_uniform(shape=[FLAGS.batch_size,1], minval=-2.0*sc, maxval=2.0*sc, dtype=tf.float32)
+  ty = tf.random_uniform(shape=[FLAGS.batch_size,1], minval=-2.0*sc, maxval=2.0*sc, dtype=tf.float32)
+  r  = tf.random_uniform(shape=[FLAGS.batch_size,1], minval=np.deg2rad(-sc), maxval=np.deg2rad(sc), dtype=tf.float32)
+  z  = tf.random_uniform(shape=[FLAGS.batch_size,1], minval=1.0-0.03*sc, maxval=1.0+0.03*sc, dtype=tf.float32)
+  hx = tf.random_uniform(shape=[FLAGS.batch_size,1], minval=np.deg2rad(-sc), maxval=np.deg2rad(sc), dtype=tf.float32)
+  hy = tf.random_uniform(shape=[FLAGS.batch_size,1], minval=np.deg2rad(-sc), maxval=np.deg2rad(sc), dtype=tf.float32)
+  a = hx - r
+  b = tf.cos(hx)
+  c = hy + r
+  d = tf.cos(hy)
+  m1 = tf.divide(z*tf.cos(a), b)
+  m2 = tf.divide(z*tf.sin(a), b)
+  m3 = tf.divide(sx*b-sx*z*tf.cos(a)+2*tx*z*tf.cos(a)-sy*z*tf.sin(a)+2*ty*z*tf.sin(a), 2*b)
+  m4 = tf.divide(z*tf.sin(c), d)
+  m5 = tf.divide(z*tf.cos(c), d)
+  m6 = tf.divide(sy*d-sy*z*tf.cos(c)+2*ty*z*tf.cos(c)-sx*z*tf.sin(c)+2*tx*z*tf.sin(c), 2*d)
+  m7 = tf.zeros([FLAGS.batch_size,2], 'float32')
+  transf = tf.concat([m1, m2, m3, m4, m5, m6, m7], 1)
+  x_aug = tf.contrib.image.transform(x_aug, transf, interpolation='BILINEAR')
+
+if FLAGS.noise:
+  std = tf.random_uniform(shape=[1], minval=0.01, maxval=0.05, dtype=tf.float32)
+  x_aug = tf.add(x_aug, tf.random_normal(shape=tf.shape(x_aug), mean=0.0, stddev=std, dtype=tf.float32))
+  x_aug = tf.minimum(1.0, tf.maximum(0.0, x_aug))
+
 #=== Network ==================================================================
 
 # Setup the network
 print("Network setup:\n")
-net, vgg16_conv_layers = network.model(x, FLAGS.batch_size, True)
+with tf.variable_scope("siamese") as scope:
+    net, vgg16_conv_layers = network.model(x, FLAGS.batch_size, True)
+
+    scope.reuse_variables()
+    net_R, vgg16_conv_layers_R = network.model(x_aug, FLAGS.batch_size, True)
 
 y = net.outputs
+y_R = net_R.outputs
 train_params = net.all_params
+
+print('Model size = %d weights\n'%network.count_all_vars())
 
 # The TensorFlow session to be used
 sess = tf.InteractiveSession()
@@ -230,6 +277,8 @@ msk = tf.tile(msk, [1,1,1,3])
 
 # Loss separated into illumination and reflectance terms
 if FLAGS.sep_loss:
+    print('Using illumination + reflectance loss\n')
+
     y_log_ = tf.log(y_+eps)
     x_log = tf.log(tf.pow(x, 2.0)+eps)
 
@@ -271,8 +320,26 @@ if FLAGS.sep_loss:
     cost =              tf.reduce_mean( ( FLAGS.lambda_ir*tf.square( tf.subtract(y_ill, y_ill_) ) + (1.0-FLAGS.lambda_ir)*tf.square( tf.subtract(y_refl, y_refl_) ) )*msk )
     cost_input_output = tf.reduce_mean( ( FLAGS.lambda_ir*tf.square( tf.subtract(x_ill, y_ill_) ) + (1.0-FLAGS.lambda_ir)*tf.square( tf.subtract(x_refl, y_refl_) ) )*msk )
 else:
+    print('Using L2 loss\n')
     cost =              tf.reduce_mean( tf.square( tf.subtract(y, tf.log(y_+eps) )*msk ) )
     cost_input_output = tf.reduce_mean( tf.square( tf.subtract(tf.log(y_+eps), tf.log(tf.pow(x, 2.0)+eps) )*msk ) );
+
+if FLAGS.regularization > 0:
+    y_T = tf.contrib.image.transform(y, transf, interpolation='BILINEAR')
+    msk_R = tf.contrib.image.transform(msk, transf, interpolation='BILINEAR')
+
+# Regularization for temporal stability
+if FLAGS.regularization == 1:
+    cost = (1.0-FLAGS.regularization_alpha)*cost + FLAGS.regularization_alpha*tf.reduce_mean( tf.square( tf.subtract(y_R, y_T)*msk_R ) )
+    print('Using coherence regularization, strength = %f\n'%FLAGS.regularization_alpha)
+elif FLAGS.regularization == 2:
+    y_aug = tf.contrib.image.transform(y_, transf, interpolation='BILINEAR')
+    ylog_ = tf.log(y_+eps)
+    ylog_T = tf.log(y_aug+eps)
+    msk_T = tf.maximum(msk, msk_R)
+    cost = (1.0-FLAGS.regularization_alpha)*cost + FLAGS.regularization_alpha*tf.reduce_mean( tf.square( tf.subtract(tf.subtract(y_R, y), tf.subtract(ylog_T, ylog_))*msk_T ) )
+    print('Using sparse Jacobian regularization, strength = %f\n'%FLAGS.regularization_alpha)
+sys.stdout.flush()
 
 # Optimizer
 global_step = tf.Variable(0, trainable=False)
@@ -339,7 +406,11 @@ def calc_loss_and_print(x_data, y_data, print_dir, step, N):
         x_batch = x_data[b*FLAGS.batch_size:(b+1)*FLAGS.batch_size,:,:,:]
         y_batch = y_data[b*FLAGS.batch_size:(b+1)*FLAGS.batch_size,:,:,:]
         feed_dict = {x: x_batch, y_: y_batch}
-        err1, err2, y_predict, y_gt, M = sess.run([cost, cost_input_output, y, y_, msk], feed_dict=feed_dict)
+
+        if FLAGS.regularization > 0:
+            err1, err2, y_predict, y_gt, M, y_Rp, y_Tp, M_R, x_R = sess.run([cost, cost_input_output, y, y_, msk, y_R, y_T, msk_R, x_aug], feed_dict=feed_dict)
+        else:
+            err1, err2, y_predict, y_gt, M = sess.run([cost, cost_input_output, y, y_, msk], feed_dict=feed_dict)
 
 
         val_loss += err1; orig_loss += err2; n_batch += 1
@@ -372,11 +443,29 @@ def calc_loss_and_print(x_data, y_data, print_dir, step, N):
                 yy = np.power(np.maximum(yy, 0.0), 0.5)
                 xx = np.power(np.maximum(x_lin, 0.0), 0.5)
 
+                if FLAGS.regularization > 0:
+                    xx_R = np.squeeze(x_R[i])
+                    mm_R = np.squeeze(M_R[i])
+                    yy_R = np.squeeze(y_Rp[i])
+                    yy_T = np.squeeze(y_Tp[i])
+
+                    x_lin_R = np.power(np.divide(0.6*xx_R, np.maximum(1.6-xx, 1e-10) ), 1.0/0.9)
+                    yy_R = np.exp(yy_R)-eps
+                    yy_T = np.exp(yy_T)-eps
+                    y_final_R = (1-mm_R)*x_lin_R + mm_R*yy_R
+                    y_final_T = (1-mm_R)*x_lin_R + mm_R*yy_T
+                    y_final_R = np.power(np.maximum(y_final_R, 0.0), 0.5)
+                    y_final_T = np.power(np.maximum(y_final_T, 0.0), 0.5)
+
                 # Print LDR samples
                 if FLAGS.print_im:
                     img_io.writeLDR(xx, "%s/%06d_%03d_in.png" % (batch_dir, step, i+1), -3)
                     img_io.writeLDR(yy, "%s/%06d_%03d_gt.png" % (batch_dir, step, i+1), -3)
                     img_io.writeLDR(y_final, "%s/%06d_%03d_out.png" % (batch_dir, step, i+1), -3)
+
+                    if FLAGS.regularization > 0:
+                        img_io.writeLDR(y_final_R, "%s/%06d_%03d_out_R.png" % (batch_dir, step, i+1), -3)
+                        img_io.writeLDR(y_final_T, "%s/%06d_%03d_out_T.png" % (batch_dir, step, i+1), -3)
                 
                 # Print HDR samples
                 if FLAGS.print_hdr:
@@ -422,6 +511,7 @@ else:
 #=== Run training loop ========================================================
 
 print("\nStarting training...\n")
+sys.stdout.flush()
 
 step = FLAGS.start_step
 train_loss = 0.0
@@ -466,6 +556,7 @@ try:
             
             # Intermediate training statistics
             print('  [Step %06d of %06d. Processed %06d of %06d samples. Train loss = %0.6f, valid loss = %0.6f]' % (step, steps_per_epoch*FLAGS.num_epochs, (step % steps_per_epoch)*FLAGS.batch_size, training_samples, train_loss/v, val_loss/n_batch))
+            sys.stdout.flush()
             train_loss = 0.0
 
         # Print statistics, and save weights and some validation images
@@ -493,6 +584,7 @@ try:
             print('       Total time: %.3f sec' % (duration_tot))
             print('   Exp. time left: %.3f sec' % (duration_tot*steps_per_epoch*FLAGS.num_epochs/step - duration_tot))
             print('-------------------------------------------')
+            sys.stdout.flush()
 
             # Save current weights
             tl.files.save_npz(net.all_params , name=("%s/model_step_%06d.npz"%(log_dir,step)))
